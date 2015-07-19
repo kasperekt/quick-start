@@ -1,0 +1,14 @@
+{
+  "name": "<askme>",
+  "version": "0.1.0",
+  "dependencies": {
+    "react": "*",
+    "flux": "*"
+  },
+  "author": "<askme>",
+  "license": "<askme>",
+  "repository": {
+    "type": "git",
+    "url": "<askme>"
+  }
+}
