@@ -1,17 +1,15 @@
 {
   "name": "project_creator",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Project creator for node.js/javascript applications",
   "main": "index.js",
   "dependencies": {
-    "minimist": "^1.1.1",
-    "prompt": "^0.2.14",
-    "react": "^0.13.3"
+    "minimist": "^1.1.1"
   },
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Tomasz Kasperek <tomasz.kasperek@icloud.com> (http://tomaszkasperek.me)",
   "license": "MIT"
 }

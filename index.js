@@ -1,4 +1,1 @@
-var ProjectCreator = require('./lib/main');
-var argv = require('minimist')(process.argv.slice(2));
-
-ProjectCreator.run(argv._[0]);
+console.log('It needs to begin, one more time...');
