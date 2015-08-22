@@ -11,5 +11,6 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Tomasz Kasperek <tomasz.kasperek@icloud.com> (http://tomaszkasperek.me)",
-  "license": "MIT"
+  "license": "MIT",
+  "bin": "./bin/creator"
 }
