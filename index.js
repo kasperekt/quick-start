@@ -1,6 +1,7 @@
 var path = require('path');
 var fs = require('fs');
 var wrench = require('wrench');
+var exec = require('./lib/shell').exec;
 var argv = require('minimist')(process.argv.slice(2), {
   boolean: [
     'c', 'create',
@@ -102,7 +103,8 @@ function printHelp() {
   console.log(
     'Usage: creator [-c | -s] [project_name] [destination]\n',
     '   -c, --create      create project\n',
-    '   -s, --scan        scan project'
+    '   -s, --scan        scan project\n',
+    '   -d, --delete      delete project'
   );
 }
 
