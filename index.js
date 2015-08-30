@@ -1,12 +1,17 @@
 var path = require('path');
 var fs = require('fs');
 var argv = require('minimist')(process.argv.slice(2), {
-  boolean: ['c', 'create']
+  boolean: [
+    'c', 'create',
+    's', 'scan'
+  ]
 });
 var wrench = require('wrench');
 
-function successCb() {
-  console.log('Good!');
+var exclude = ['node_modules', '.git', 'bower_components', 'npm-debug.log'];
+
+function getProjectPath(name) {
+  return path.join(__dirname, 'projects', name);
 }
 
 function _projectExists(pathname) {
@@ -19,24 +24,42 @@ function _projectExists(pathname) {
 }
 
 function createProject(name, dest) {
-  var projectPath = path.join(__dirname, 'projects', name);
+  var projectPath = getProjectPath(name);
   
   if (!_projectExists(projectPath)) {
     console.error('Project doesn\'t exist!');
-    return;
+    process.exit(1);
   }
 
-  wrench.copyDirRecursive(
-    projectPath,
-    dest,
-    {
-      forceDelete: true
-    },
-    successCb
-  );  
+  try {
+    wrench.copyDirSyncRecursive(
+      projectPath,
+      dest,
+      {
+        whitelist: true,
+        exclude: function(filename, dir) {
+          return exclude.some(function(filter) {
+            return filter === filename;
+          });
+        }
+      }
+    );  
+
+    console.log('Successfully created ' + name + ' project!');
+  } catch (error) {
+    console.error(error);
+    process.exit(1);
+  }
 }
 
 function scanProject(name, dest) {
+  var projectPath = getProjectPath(name);
+
+  if (_projectExists(projectPath)) {
+    console.log('Project already exists');
+    process.exit(0);
+  }
+  
   console.log('Scan -- name: %s, dest: %s', name, dest);
 }
 
@@ -49,5 +72,5 @@ function printHelp() {
 }
 
 if (argv.c || argv.create) createProject.apply(null, argv._);
-else if (argv.s || argv.scan) scanProject().apply(null, argv._);
+else if (argv.s || argv.scan) scanProject.apply(null, argv._);
 else printHelp();
