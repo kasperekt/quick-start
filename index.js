@@ -8,18 +8,46 @@ var argv = require('minimist')(process.argv.slice(2), {
     's', 'scan',
     'd', 'delete',
     'git',
-    'npm-install'
+    'npm-install',
+    'npm-init'
   ]
 });
+
+/*
+ * Constants
+ *
+ * These are constants for things like file or dir names.
+ * If there would ever be a need for a quick change.
+ */
+var CONFIG_FILE_NAME = '.starterrc';
+var PROJECTS_DIR_NAME = 'projects';
 
 var exclude = ['node_modules', '.git', 'bower_components', 'npm-debug.log'];
 var commands = {
   'git': { cmd: 'git', args: ['init'] },
-  'npm-install': { cmd: 'npm', args: ['install'] }
+  'npm-install': { cmd: 'npm', args: ['install'] },
+  'npm-init': { cmd: 'npm', args: ['init'] }
 };
 
+function _hasConfigFile(project) {
+  var pathname = path.join(
+    __dirname,
+    PROJECTS_DIR_NAME, 
+    project,
+    CONFIG_FILE_NAME
+  );
+
+  try {
+    var stats = fs.lstatSync(pathname);
+    return stats.isFile();
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+}
+
 function _getProjectPath(name) {
-  return path.join(__dirname, 'projects', name);
+  return path.join(__dirname, PROJECTS_DIR_NAME, name);
 }
 
 function _projectExists(pathname) {
@@ -43,12 +71,17 @@ function _getCommandsList(commands) {
 
 function _afterCreate(dest) {
   process.chdir(path.resolve(process.cwd(), dest));
-  console.log('Commands:', _getCommandsList(commands));
   execCmdList(_getCommandsList(commands));
+}
+
+function readJSONFile(filePath) {
+  var pathname = path.resolve(__dirname, filePath);
+  return JSON.parse(fs.readFileSync(pathname));
 }
 
 function execCmdList(list) {
   if (list.length === 0) return;
+
   var cmd = list.shift();
   exec(cmd.cmd, cmd.args, function() {
     execCmdList(list);
