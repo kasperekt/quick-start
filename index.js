@@ -14,11 +14,11 @@ var argv = require('minimist')(process.argv.slice(2), {
 
 var exclude = ['node_modules', '.git', 'bower_components', 'npm-debug.log'];
 var commands = {
-  git: { cmd: 'git', args: ['init'] },
-  npminstall: { cmd: 'npm', args: ['install'] }
+  'git': { cmd: 'git', args: ['init'] },
+  'npm-install': { cmd: 'npm', args: ['install'] }
 };
 
-function getProjectPath(name) {
+function _getProjectPath(name) {
   return path.join(__dirname, 'projects', name);
 }
 
@@ -31,9 +31,20 @@ function _projectExists(pathname) {
   }
 }
 
+function _getCommandsList(commands) {
+  return Object.keys(commands)
+    .filter(function(command) {
+      return argv[command];
+    })
+    .map(function(command) {
+      return commands[command];
+    });
+}
+
 function _afterCreate(dest) {
   process.chdir(path.resolve(process.cwd(), dest));
-  execCmdList([commands.git, commands.npminstall]);
+  console.log('Commands:', _getCommandsList(commands));
+  execCmdList(_getCommandsList(commands));
 }
 
 function execCmdList(list) {
@@ -45,7 +56,7 @@ function execCmdList(list) {
 }
 
 function newProject(name, dest) {
-  var projectPath = getProjectPath(name);
+  var projectPath = _getProjectPath(name);
   
   if (!_projectExists(projectPath)) {
     console.error('Project doesn\'t exist!');
@@ -75,7 +86,7 @@ function newProject(name, dest) {
 }
 
 function scanProject(name, src) {
-  var projectPath = getProjectPath(name);
+  var projectPath = _getProjectPath(name);
 
   if (_projectExists(projectPath)) {
     console.log('Project already exists');
@@ -104,7 +115,7 @@ function scanProject(name, src) {
 }
 
 function removeProject(name) {
-  var projectPath = getProjectPath(name);
+  var projectPath = _getProjectPath(name);
   if (!_projectExists(projectPath)) {
     console.error(name + ' project doesn\'t exist!');
     process.exit(1);
