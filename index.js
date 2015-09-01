@@ -22,6 +22,12 @@ var argv = require('minimist')(process.argv.slice(2), {
 var CONFIG_FILE_NAME = '.starterrc';
 var PROJECTS_DIR_NAME = 'projects';
 
+/*
+ * Default exclude filter files
+ *
+ * These are most popular files to exlude,
+ * while creating or scanning new project.
+ */
 var defaultExclude = [
   'node_modules',
   '.git',
@@ -29,20 +35,33 @@ var defaultExclude = [
   'npm-debug.log',
   CONFIG_FILE_NAME
 ];
+
+var defaultScanExclude = [
+  'node_modules',
+  '.git',
+  'bower_components',
+  'npm-debug.log'
+];
+
+/*
+ * Default commands
+ *
+ * Idea behind it is basically to enable CLI flags.
+ * When you create new project and config file doesn't have commands set,
+ * you can type i.e. "--git" flag and the "git" command while execute after
+ * project setup.
+ */
 var defaultCommands = {
   'git': { cmd: 'git', args: ['init'] },
   'npm-install': { cmd: 'npm', args: ['install'] },
   'npm-init': { cmd: 'npm', args: ['init'] }
 };
 
-function _hasConfigFile(project) {
-  var pathname = path.join(
-    __dirname,
-    PROJECTS_DIR_NAME, 
-    project,
-    CONFIG_FILE_NAME
-  );
+function _getConfigPath(project) {
+  return path.join(__dirname, PROJECTS_DIR_NAME, project, CONFIG_FILE_NAME);
+}
 
+function _hasConfigFile(pathname) {
   try {
     var stats = fs.lstatSync(pathname);
     return stats.isFile();
@@ -97,7 +116,7 @@ function _getExcludeFilter(config) {
     toFilter = config.exclude;
     toFilter.push(CONFIG_FILE_NAME);
   }
-  
+
   return _createExcludeFilter(toFilter);
 }
 
@@ -123,14 +142,13 @@ function newProject(name, dest) {
     process.exit(1);
   }
 
-  if (_hasConfigFile(name)) {
-    var config = _readJSONFile(
-      path.join(__dirname, PROJECTS_DIR_NAME, name, CONFIG_FILE_NAME)
-    );
-
-    var excludeFilter = _getExcludeFilter(config);
-    var commands = _getCommandsList(config);
-}
+  var configPath = _getConfigPath(name);
+  var config = _hasConfigFile(configPath) ?
+    _readJSONFile(configPath) :
+    {};
+      
+  var excludeFilter = _getExcludeFilter(config);
+  var commands = _getCommandsList(config);
 
   try {
     wrench.copyDirSyncRecursive(
@@ -158,17 +176,15 @@ function scanProject(name, src) {
     process.exit(0);
   }
 
+
+
   try {
     wrench.copyDirSyncRecursive(
       src,
       projectPath,
       {
         whitelist: true,
-        exclude: function(filename, dir) {
-          return defaultExclude.some(function(filter) {
-            return filter === filename;
-          });
-        }
+        exclude: _createExcludeFilter(defaultScanExclude)
       }
     );  
 

@@ -1,5 +1,5 @@
 {
-  "name": "project_creator",
+  "name": "quick-start",
   "version": "0.2.0",
   "description": "Project creator for node.js/javascript applications",
   "main": "index.js",
@@ -9,9 +9,6 @@
     "wrench": "^1.5.8"
   },
   "devDependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "author": "Tomasz Kasperek <tomasz.kasperek@icloud.com> (http://tomaszkasperek.me)",
   "license": "MIT",
   "bin": "./bin/creator"
