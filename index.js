@@ -4,13 +4,19 @@ var wrench = require('wrench');
 var exec = require('./lib/shell').exec;
 var argv = require('minimist')(process.argv.slice(2), {
   boolean: [
-    'c', 'create',
+    'n', 'new',
     's', 'scan',
-    'd', 'delete'
+    'd', 'delete',
+    'git',
+    'npm-install'
   ]
 });
 
 var exclude = ['node_modules', '.git', 'bower_components', 'npm-debug.log'];
+var commands = {
+  git: { cmd: 'git', args: ['init'] },
+  npminstall: { cmd: 'npm', args: ['install'] }
+};
 
 function getProjectPath(name) {
   return path.join(__dirname, 'projects', name);
@@ -25,7 +31,20 @@ function _projectExists(pathname) {
   }
 }
 
-function createProject(name, dest) {
+function _afterCreate(dest) {
+  process.chdir(path.resolve(process.cwd(), dest));
+  execCmdList([commands.git, commands.npminstall]);
+}
+
+function execCmdList(list) {
+  if (list.length === 0) return;
+  var cmd = list.shift();
+  exec(cmd.cmd, cmd.args, function() {
+    execCmdList(list);
+  });
+}
+
+function newProject(name, dest) {
   var projectPath = getProjectPath(name);
   
   if (!_projectExists(projectPath)) {
@@ -45,8 +64,9 @@ function createProject(name, dest) {
           });
         }
       }
-    );  
+    );
 
+    _afterCreate(dest);
     console.log('Successfully created ' + name + ' project!');
   } catch (error) {
     console.error(error);
@@ -101,14 +121,14 @@ function removeProject(name) {
 
 function printHelp() {
   console.log(
-    'Usage: creator [-c | -s] [project_name] [destination]\n',
-    '   -c, --create      create project\n',
+    'Usage: creator [-n | -s] [project_name] [destination]\n',
+    '   -n, --new         new project\n',
     '   -s, --scan        scan project\n',
     '   -d, --delete      delete project'
   );
 }
 
-if (argv.c || argv.create) createProject.apply(null, argv._);
+if (argv.n || argv.new) newProject.apply(null, argv._);
 else if (argv.s || argv.scan) scanProject.apply(null, argv._);
 else if (argv.d || argv.delete) removeProject.apply(null, argv._);
 else printHelp();
