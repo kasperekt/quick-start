@@ -1,6 +1,0 @@
-{
-  "commands": [
-    { "cmd": "git", "args": ["init"] },
-    { "cmd": "npm", "args": ["install"] }
-  ]
-}
