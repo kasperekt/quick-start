@@ -67,7 +67,7 @@ function _hasConfigFile(pathname) {
     return stats.isFile();
   } catch (error) {
     console.error(error);
-    return false;
+    process.exit(1);
   }
 }
 
@@ -108,6 +108,11 @@ function _createExcludeFilter(toFilter) {
     });
   };
 }
+
+function _getScanExcludeFilter(config) {
+  var toFilter = config.scanExclude || defaultScanExclude;
+  return _createExcludeFilter(toFilter);
+} 
 
 function _getExcludeFilter(config) {
   var toFilter = defaultExclude;
@@ -176,7 +181,12 @@ function scanProject(name, src) {
     process.exit(0);
   }
 
-
+  var configPath = path.join(process.cwd(), src, CONFIG_FILE_NAME);
+  var config = _hasConfigFile(configPath) ?
+    _readJSONFile(configPath) :
+    {};
+      
+  var excludeFilter = _getScanExcludeFilter(config);
 
   try {
     wrench.copyDirSyncRecursive(
@@ -184,7 +194,7 @@ function scanProject(name, src) {
       projectPath,
       {
         whitelist: true,
-        exclude: _createExcludeFilter(defaultScanExclude)
+        exclude: excludeFilter
       }
     );  
 

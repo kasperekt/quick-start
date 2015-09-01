@@ -1,0 +1,6 @@
+{
+  "scanExclude": [
+    "error.js",
+    "dist"
+  ]
+}
