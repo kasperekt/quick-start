@@ -19,7 +19,7 @@ var argv = require('minimist')(process.argv.slice(2), {
  * These are constants for things like file or dir names.
  * If there would ever be a need for a quick change.
  */
-var CONFIG_FILE_NAME = '.starterrc';
+var CONFIG_FILE_NAME = '.quickstartrc';
 var PROJECTS_DIR_NAME = 'projects';
 
 /*
@@ -50,6 +50,8 @@ var defaultScanExclude = [
  * When you create new project and config file doesn't have commands set,
  * you can type i.e. "--git" flag and the "git" command while execute after
  * project setup.
+ *
+ * Remember to add boolean argv option!
  */
 var defaultCommands = {
   'git': { cmd: 'git', args: ['init'] },
