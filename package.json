@@ -9,7 +9,22 @@
     "wrench": "^1.5.8"
   },
   "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kasperekt/quick-start"
+  },
+  "bugs": {
+    "url": "https://github.com/kasperekt/quick-start/issues"
+  },
+  "preferGlobal": true,
   "author": "Tomasz Kasperek <tomasz.kasperek@icloud.com> (http://tomaszkasperek.me)",
   "license": "MIT",
-  "bin": "./bin/qs"
+  "bin": "./bin/qs",
+  "keywords": [
+    "scaffold",
+    "quick-start",
+    "quickstart",
+    "creator",
+    "project-creator"
+  ]
 }
