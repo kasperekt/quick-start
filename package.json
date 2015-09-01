@@ -11,5 +11,5 @@
   "devDependencies": {},
   "author": "Tomasz Kasperek <tomasz.kasperek@icloud.com> (http://tomaszkasperek.me)",
   "license": "MIT",
-  "bin": "./bin/quick-start"
+  "bin": "./bin/qs"
 }
