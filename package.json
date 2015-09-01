@@ -1,6 +1,6 @@
 {
   "name": "quick-start",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Project creator for node.js/javascript applications",
   "main": "index.js",
   "dependencies": {
