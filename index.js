@@ -22,8 +22,14 @@ var argv = require('minimist')(process.argv.slice(2), {
 var CONFIG_FILE_NAME = '.starterrc';
 var PROJECTS_DIR_NAME = 'projects';
 
-var exclude = ['node_modules', '.git', 'bower_components', 'npm-debug.log'];
-var commands = {
+var defaultExclude = [
+  'node_modules',
+  '.git',
+  'bower_components',
+  'npm-debug.log',
+  CONFIG_FILE_NAME
+];
+var defaultCommands = {
   'git': { cmd: 'git', args: ['init'] },
   'npm-install': { cmd: 'npm', args: ['install'] },
   'npm-init': { cmd: 'npm', args: ['init'] }
@@ -59,22 +65,43 @@ function _projectExists(pathname) {
   }
 }
 
-function _getCommandsList(commands) {
-  return Object.keys(commands)
+function _getCommandsList(config) {
+  if (config.commands) return config.commands;
+
+  return Object.keys(defaultCommands)
     .filter(function(command) {
       return argv[command];
     })
     .map(function(command) {
-      return commands[command];
+      return defaultCommands[command];
     });
 }
 
-function _afterCreate(dest) {
+function _afterCreate(dest, commandsList) {
   process.chdir(path.resolve(process.cwd(), dest));
-  execCmdList(_getCommandsList(commands));
+  execCmdList(commandsList);
 }
 
-function readJSONFile(filePath) {
+function _createExcludeFilter(toFilter) {
+  return function(filename, dir) {
+    return toFilter.some(function(filter) {
+      return filter === filename;
+    });
+  };
+}
+
+function _getExcludeFilter(config) {
+  var toFilter = defaultExclude;
+  
+  if (config.exclude) {
+    toFilter = config.exclude;
+    toFilter.push(CONFIG_FILE_NAME);
+  }
+  
+  return _createExcludeFilter(toFilter);
+}
+
+function _readJSONFile(filePath) {
   var pathname = path.resolve(__dirname, filePath);
   return JSON.parse(fs.readFileSync(pathname));
 }
@@ -96,21 +123,26 @@ function newProject(name, dest) {
     process.exit(1);
   }
 
+  if (_hasConfigFile(name)) {
+    var config = _readJSONFile(
+      path.join(__dirname, PROJECTS_DIR_NAME, name, CONFIG_FILE_NAME)
+    );
+
+    var excludeFilter = _getExcludeFilter(config);
+    var commands = _getCommandsList(config);
+}
+
   try {
     wrench.copyDirSyncRecursive(
       projectPath,
       dest,
       {
         whitelist: true,
-        exclude: function(filename, dir) {
-          return exclude.some(function(filter) {
-            return filter === filename;
-          });
-        }
+        exclude: excludeFilter
       }
     );
 
-    _afterCreate(dest);
+    _afterCreate(dest, commands);
     console.log('Successfully created ' + name + ' project!');
   } catch (error) {
     console.error(error);
@@ -133,7 +165,7 @@ function scanProject(name, src) {
       {
         whitelist: true,
         exclude: function(filename, dir) {
-          return exclude.some(function(filter) {
+          return defaultExclude.some(function(filter) {
             return filter === filename;
           });
         }
