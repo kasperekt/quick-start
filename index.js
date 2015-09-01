@@ -225,10 +225,12 @@ function removeProject(name) {
 
 function printHelp() {
   console.log(
-    'Usage: creator [-n | -s] [project_name] [destination]\n',
+    'Usage: quick-start [-n | -s] [project_name] [destination]\n',
     '   -n, --new         new project\n',
     '   -s, --scan        scan project\n',
-    '   -d, --delete      delete project'
+    '   -d, --delete      delete project\n\n',
+    '   --git             initialize git repo\n',
+    '   --npm-install     install npm deps'
   );
 }
 
