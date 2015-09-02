@@ -7,6 +7,7 @@ var argv = require('minimist')(process.argv.slice(2), {
     'n', 'new',
     's', 'scan',
     'd', 'delete',
+    'v', 'version',
     'git',
     'npm-install',
     'npm-init'
@@ -234,7 +235,13 @@ function printHelp() {
   );
 }
 
+function printVersion() {
+  var package = require('./package.json');
+  console.log(package.version);
+}
+
 if (argv.n || argv.new) newProject.apply(null, argv._);
 else if (argv.s || argv.scan) scanProject.apply(null, argv._);
 else if (argv.d || argv.delete) removeProject.apply(null, argv._);
+else if (argv.v || argv.version) printVersion.apply(null, argv._);
 else printHelp();
