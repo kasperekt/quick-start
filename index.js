@@ -8,6 +8,7 @@ var argv = require('minimist')(process.argv.slice(2), {
     's', 'scan',
     'd', 'delete',
     'v', 'version',
+    'l', 'list',
     'git',
     'npm-install',
     'npm-init'
@@ -229,6 +230,7 @@ function printHelp() {
     'Usage: quick-start [-n | -s] [project_name] [destination]\n',
     '   -n, --new         new project\n',
     '   -s, --scan        scan project\n',
+    '   -l, --list        show the list of all projects\n',
     '   -d, --delete      delete project\n\n',
     '   --git             initialize git repo\n',
     '   --npm-install     install npm deps'
@@ -240,8 +242,22 @@ function printVersion() {
   console.log(package.version);
 }
 
+function printProjectsList() {
+  var projects = fs.readdirSync(path.join(__dirname, 'projects'));
+  
+  projects
+    .filter(function(project) {
+      var pathname = _getProjectPath(project);
+      return fs.lstatSync(pathname).isDirectory();
+    })
+    .forEach(function(project) {
+      console.log('- ' + project);
+    });
+}
+
 if (argv.n || argv.new) newProject.apply(null, argv._);
 else if (argv.s || argv.scan) scanProject.apply(null, argv._);
 else if (argv.d || argv.delete) removeProject.apply(null, argv._);
 else if (argv.v || argv.version) printVersion.apply(null, argv._);
+else if (argv.l || argv.list) printProjectsList.apply(null, argv._);
 else printHelp();
