@@ -16,7 +16,7 @@ To scan project:
 quick-start -s [project name] [src]
 ```
 
-To run project:
+To create new project:
 
 ```
 quick-start -n [project name] [dest]
@@ -35,14 +35,15 @@ Example config file:
     "exclude": ["node_modules", "__tests__"],
     "scanExclude": ["something.js"],
     "commands": [
-        { "cmd": "echo", "args": ["Hello world"] },
-        { "cmd": "git", "args": ["init"] }
+        { "cmd": "git", "args": ["init"] },
+        { "cmd": "npm", "args": ["install"] }
     ]
 }
 ```
 
 ## Options
 
-* `--git` - initialize git after project setup
-* `--npm-install` - install dependencies
-* `--npm-init` - initialize npm module with package.json file
+* `-n, --new` - creates new project
+* `-s, --scan` - scans given directory and saves it as a project
+* `-l, --list` - show the list of your projects
+* `-d, --delete` - deletes project
