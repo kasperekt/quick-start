@@ -283,8 +283,13 @@ function printVersion() {
  * Prints project list, only with it's names
  */
 function printProjectsList() {
-  var projects = fs.readdirSync(path.join(__dirname, 'projects'));
-  
+  try {
+    var projects = fs.readdirSync(path.join(__dirname, 'projects'));
+  } catch (e) {
+    console.log('You haven\'t created any project');
+    process.exit(0);
+  }
+
   projects
     .filter(function(project) {
       var pathname = _getProjectPath(project);
