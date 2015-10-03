@@ -1,5 +1,6 @@
 var path = require('path');
 var fs = require('fs');
+var mkdirp = require('mkdirp');
 var glob = require('glob');
 var wrench = require('wrench');
 var exec = require('./lib/shell').exec;
@@ -223,6 +224,7 @@ function scanProject(name, src) {
   var excludeFilter = _getScanExcludeFilter(name, config);
 
   try {
+    mkdirp(path.join(__dirname, PROJECTS_DIR_NAME));
     wrench.copyDirSyncRecursive(
       src,
       projectPath,
