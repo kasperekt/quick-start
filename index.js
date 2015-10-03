@@ -8,10 +8,7 @@ var argv = require('minimist')(process.argv.slice(2), {
     's', 'scan',
     'd', 'delete',
     'v', 'version',
-    'l', 'list',
-    'git',
-    'npm-install',
-    'npm-init'
+    'l', 'list'
   ]
 });
 
@@ -46,25 +43,15 @@ var defaultScanExclude = [
 ];
 
 /*
- * Default commands
- *
- * Idea behind it is basically to enable CLI flags.
- * When you create new project and config file doesn't have commands set,
- * you can type i.e. "--git" flag and the "git" command while execute after
- * project setup.
- *
- * Remember to add boolean argv option!
+ * Returns config path based on project name
  */
-var defaultCommands = {
-  'git': { cmd: 'git', args: ['init'] },
-  'npm-install': { cmd: 'npm', args: ['install'] },
-  'npm-init': { cmd: 'npm', args: ['init'] }
-};
-
 function _getConfigPath(project) {
   return path.join(__dirname, PROJECTS_DIR_NAME, project, CONFIG_FILE_NAME);
 }
 
+/*
+ * Checks if project has config file added
+ */
 function _hasConfigFile(pathname) {
   try {
     var stats = fs.lstatSync(pathname);
@@ -75,10 +62,16 @@ function _hasConfigFile(pathname) {
   }
 }
 
+/*
+ * Gets project path based on its name
+ */
 function _getProjectPath(name) {
   return path.join(__dirname, PROJECTS_DIR_NAME, name);
 }
 
+/*
+ * Checks if project with given name exists
+ */
 function _projectExists(pathname) {
   try {
     var stats = fs.lstatSync(pathname);
@@ -88,23 +81,27 @@ function _projectExists(pathname) {
   }
 }
 
+/*
+ * Returns commands list if have one
+ */
 function _getCommandsList(config) {
-  if (config.commands) return config.commands;
-
-  return Object.keys(defaultCommands)
-    .filter(function(command) {
-      return argv[command];
-    })
-    .map(function(command) {
-      return defaultCommands[command];
-    });
+  if (config.commands) {
+    return config.commands;
+  }
 }
 
+/*
+ * Executes "after install" commands after creating project
+ */
 function _afterCreate(dest, commandsList) {
   process.chdir(path.resolve(process.cwd(), dest));
   execCmdList(commandsList);
 }
 
+/*
+ * Returns function which serves as filter.
+ * Pass array of filenames to exclude them.
+ */
 function _createExcludeFilter(toFilter) {
   return function(filename, dir) {
     return toFilter.some(function(filter) {
@@ -113,11 +110,17 @@ function _createExcludeFilter(toFilter) {
   };
 }
 
+/*
+ * Returns scan files exclude filter
+ */
 function _getScanExcludeFilter(config) {
   var toFilter = config.scanExclude || defaultScanExclude;
   return _createExcludeFilter(toFilter);
-} 
+}
 
+/*
+ * Returns files exclude filter
+ */
 function _getExcludeFilter(config) {
   var toFilter = defaultExclude;
   
@@ -129,11 +132,17 @@ function _getExcludeFilter(config) {
   return _createExcludeFilter(toFilter);
 }
 
+/*
+ * Simple JSON file reader
+ */
 function _readJSONFile(filePath) {
   var pathname = path.resolve(__dirname, filePath);
   return JSON.parse(fs.readFileSync(pathname));
 }
 
+/*
+ * Executes list of commands
+ */
 function execCmdList(list) {
   if (list.length === 0) return;
 
@@ -143,6 +152,9 @@ function execCmdList(list) {
   });
 }
 
+/*
+ * Creates new project
+ */
 function newProject(name, dest) {
   var projectPath = _getProjectPath(name);
   
@@ -177,6 +189,9 @@ function newProject(name, dest) {
   }
 }
 
+/*
+ * Scans project and saves it in `projects/` directory
+ */
 function scanProject(name, src) {
   var projectPath = _getProjectPath(name);
 
@@ -209,6 +224,9 @@ function scanProject(name, src) {
   }
 }
 
+/*
+ * Checks if project with given name exists, then it removes it
+ */
 function removeProject(name) {
   var projectPath = _getProjectPath(name);
   if (!_projectExists(projectPath)) {
@@ -225,23 +243,30 @@ function removeProject(name) {
   }
 }
 
+/*
+ * Print help message in command line
+ */
 function printHelp() {
   console.log(
     'Usage: quick-start [-n | -s] [project_name] [destination]\n',
     '   -n, --new         new project\n',
     '   -s, --scan        scan project\n',
-    '   -l, --list        show the list of all projects\n',
-    '   -d, --delete      delete project\n\n',
-    '   --git             initialize git repo\n',
-    '   --npm-install     install npm deps'
+    '   -l, --list        show the list of your projects\n',
+    '   -d, --delete      delete project\n\n'
   );
 }
 
+/*
+ * Prints version info
+ */
 function printVersion() {
   var package = require('./package.json');
   console.log(package.version);
 }
 
+/*
+ * Prints project list, only with it's names
+ */
 function printProjectsList() {
   var projects = fs.readdirSync(path.join(__dirname, 'projects'));
   
@@ -255,6 +280,10 @@ function printProjectsList() {
     });
 }
 
+/*
+ * Executes command based on passed flags.
+ * Otherwise, it prints help message.
+ */
 if (argv.n || argv.new) newProject.apply(null, argv._);
 else if (argv.s || argv.scan) scanProject.apply(null, argv._);
 else if (argv.d || argv.delete) removeProject.apply(null, argv._);
