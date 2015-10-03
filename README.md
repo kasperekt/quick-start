@@ -28,11 +28,13 @@ quick-start -n [project name] [dest]
 * `exclude` - files to exclude on project setup
 * `scanExclude` - filter to exclude on project scanning
 
+*You can use wildcards in file names*
+
 Example config file:
 
 ```
 {
-    "exclude": ["node_modules", "__tests__"],
+    "exclude": ["node_modules", "__tests__", "./private/**/*.js"],
     "scanExclude": ["something.js"],
     "commands": [
         { "cmd": "git", "args": ["init"] },
