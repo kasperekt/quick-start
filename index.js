@@ -1,5 +1,6 @@
 var path = require('path');
 var fs = require('fs');
+var glob = require('glob');
 var wrench = require('wrench');
 var exec = require('./lib/shell').exec;
 var argv = require('minimist')(process.argv.slice(2), {
@@ -101,11 +102,25 @@ function _afterCreate(dest, commandsList) {
 /*
  * Returns function which serves as filter.
  * Pass array of filenames to exclude them.
+ *
+ * Supports wildcards
  */
-function _createExcludeFilter(toFilter) {
+function _createExcludeFilter(projectName, toFilter) {
   return function(filename, dir) {
-    return toFilter.some(function(filter) {
-      return filter === filename;
+    var projectPath = _getProjectPath(projectName);
+
+    return toFilter.some(function(wildcardFilter) {
+      var files = glob.sync(wildcardFilter, {
+        cwd: projectPath,
+        root: projectPath
+      });
+
+      return files.some(function(filter) {
+        var filterPath = path.resolve(projectPath, filter);
+        var filePath = path.resolve(dir, filename);
+
+        return filterPath === filePath;
+      });
     });
   };
 }
@@ -113,15 +128,15 @@ function _createExcludeFilter(toFilter) {
 /*
  * Returns scan files exclude filter
  */
-function _getScanExcludeFilter(config) {
+function _getScanExcludeFilter(projectName, config) {
   var toFilter = config.scanExclude || defaultScanExclude;
-  return _createExcludeFilter(toFilter);
+  return _createExcludeFilter(projectName, toFilter);
 }
 
 /*
  * Returns files exclude filter
  */
-function _getExcludeFilter(config) {
+function _getExcludeFilter(projectName, config) {
   var toFilter = defaultExclude;
   
   if (config.exclude) {
@@ -129,7 +144,7 @@ function _getExcludeFilter(config) {
     toFilter.push(CONFIG_FILE_NAME);
   }
 
-  return _createExcludeFilter(toFilter);
+  return _createExcludeFilter(projectName, toFilter);
 }
 
 /*
@@ -168,7 +183,7 @@ function newProject(name, dest) {
     _readJSONFile(configPath) :
     {};
       
-  var excludeFilter = _getExcludeFilter(config);
+  var excludeFilter = _getExcludeFilter(name, config);
   var commands = _getCommandsList(config);
 
   try {
@@ -205,7 +220,7 @@ function scanProject(name, src) {
     _readJSONFile(configPath) :
     {};
       
-  var excludeFilter = _getScanExcludeFilter(config);
+  var excludeFilter = _getScanExcludeFilter(name, config);
 
   try {
     wrench.copyDirSyncRecursive(
