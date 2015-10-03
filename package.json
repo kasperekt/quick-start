@@ -4,6 +4,7 @@
   "description": "Project creator for node.js/javascript applications",
   "main": "index.js",
   "dependencies": {
+    "glob": "^5.0.15",
     "minimist": "^1.1.1",
     "wrench": "^1.5.8"
   },
