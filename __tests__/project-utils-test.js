@@ -1,6 +1,7 @@
 jest.mock('homedir');
 import path from 'path';
-import { getConfigPath, getProjectPath } from '../src/project-utils';
+import { getConfigPath, getProjectPath, hasConfigFile } from '../src/project-utils';
+import { CONFIG_FILE_NAME, PROJECTS_DIR_NAME } from '../src/constants';
 
 describe('Project utils tests', () => {
   it('should return proper project path', () => {
@@ -8,9 +9,9 @@ describe('Project utils tests', () => {
     const projectPath = path.resolve(
       __dirname,
       'env',
-      '.quickstart/projects',
-      project,
-      '.quickstartrc'
+      '.quickstart',
+      PROJECTS_DIR_NAME,
+      project
     );
 
     expect(getProjectPath(project)).toBe(projectPath);
@@ -21,11 +22,34 @@ describe('Project utils tests', () => {
     const configPath = path.resolve(
       __dirname,
       'env',
-      '.quickstart/projects',
+      '.quickstart',
+      PROJECTS_DIR_NAME,
       project,
-      '.quickstartrc'
+      CONFIG_FILE_NAME
     );
 
     expect(getConfigPath(project)).toBe(configPath);
+  });
+
+  it('should check if project has config file', () => {
+    // Mock process exit to not crash on return false
+    process.exit = () => {};
+    // Silence console error
+    console.error = () => {};
+
+    const projectsPath = path.resolve(__dirname, 'env', 'projects');
+    const projectWithConfig = path.resolve(
+      projectsPath,
+      'project-with-config',
+      '.quickstartrc'
+    );
+    const projectWithoutConfig = path.resolve(
+      projectsPath,
+      'project-without-config',
+      '.quickstartrc'
+    );
+
+    expect(hasConfigFile(projectWithConfig)).toBe(true);
+    expect(hasConfigFile(projectWithoutConfig)).toBe(false);
   });
 });
