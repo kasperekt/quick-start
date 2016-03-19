@@ -3,7 +3,6 @@ import fs from 'fs';
 import mkdirp from 'mkdirp';
 import glob from 'glob';
 import wrench from 'wrench';
-import minimist from 'minimist';
 import { exec } from './shell';
 import {
   getProjectPath,
@@ -19,19 +18,6 @@ import {
   SUCCESS_EXIT_CODE,
   FAILURE_EXIT_CODE,
 } from './constants';
-
-/**
- * Process parameters passed via CLI
- */
-const argv = minimist(process.argv.slice(2), {
-  boolean: [
-    'n', 'new',
-    's', 'scan',
-    'd', 'delete',
-    'v', 'version',
-    'l', 'list',
-  ],
-});
 
 /*
  * Executes list of commands
@@ -121,7 +107,7 @@ function _readJSONFile(filePath) {
 /*
  * Creates new project
  */
-function newProject(name, dest) {
+export function newProject(name, dest) {
   const projectPath = getProjectPath(name);
 
   if (!projectExists(projectPath)) {
@@ -158,7 +144,7 @@ function newProject(name, dest) {
 /*
  * Scans project and saves it in `projects/` directory
  */
-function scanProject(name, src) {
+export function scanProject(name, src) {
   const projectPath = getProjectPath(name);
 
   if (projectExists(projectPath)) {
@@ -194,7 +180,7 @@ function scanProject(name, src) {
 /*
  * Checks if project with given name exists, then it removes it
  */
-function removeProject(name) {
+export function removeProject(name) {
   const projectPath = getProjectPath(name);
   if (!projectExists(projectPath)) {
     console.error(`${name} project doesn't exist!`);
@@ -213,7 +199,7 @@ function removeProject(name) {
 /*
  * Print help message in command line
  */
-function printHelp() {
+export function printHelp() {
   console.log(
     'Usage: quick-start [-n | -s] [project_name] [destination]\n',
     '   -n, --new         new project\n',
@@ -226,7 +212,7 @@ function printHelp() {
 /*
  * Prints version info
  */
-function printVersion() {
+export function printVersion() {
   const pkg = require('./package.json');
   console.log(pkg.version);
 }
@@ -234,7 +220,7 @@ function printVersion() {
 /*
  * Prints project list, only with it's names
  */
-function printProjectsList() {
+export function printProjectsList() {
   try {
     const projects = fs.readdirSync(path.join(__dirname, 'projects'));
 
@@ -251,14 +237,3 @@ function printProjectsList() {
     process.exit(SUCCESS_EXIT_CODE);
   }
 }
-
-/*
- * Executes command based on passed flags.
- * Otherwise, it prints help message.
- */
-if (argv.n || argv.new) newProject.apply(null, argv._);
-else if (argv.s || argv.scan) scanProject.apply(null, argv._);
-else if (argv.d || argv.delete) removeProject.apply(null, argv._);
-else if (argv.v || argv.version) printVersion.apply(null, argv._);
-else if (argv.l || argv.list) printProjectsList.apply(null, argv._);
-else printHelp();

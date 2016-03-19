@@ -1,2 +1,22 @@
 #!/usr/bin/env node
-require('../lib/index');
+var qs = require('../lib/index');
+var argv = require('minimist')(process.argv.slice(2), {
+  boolean: [
+    'n', 'new',
+    's', 'scan',
+    'd', 'delete',
+    'v', 'version',
+    'l', 'list',
+  ],
+});
+
+/*
+ * Executes command based on passed flags.
+ * Otherwise, it prints help message.
+ */
+if (argv.n || argv.new) qs.newProject.apply(null, argv._);
+else if (argv.s || argv.scan) qs.scanProject.apply(null, argv._);
+else if (argv.d || argv.delete) qs.removeProject.apply(null, argv._);
+else if (argv.v || argv.version) qs.printVersion.apply(null, argv._);
+else if (argv.l || argv.list) qs.printProjectsList.apply(null, argv._);
+else qs.printHelp();
