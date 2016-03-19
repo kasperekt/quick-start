@@ -1,17 +1,17 @@
-var path = require('path');
-var fs = require('fs');
-var mkdirp = require('mkdirp');
-var glob = require('glob');
-var wrench = require('wrench');
-var exec = require('./shell').exec;
-var argv = require('minimist')(process.argv.slice(2), {
+const path = require('path');
+const fs = require('fs');
+const mkdirp = require('mkdirp');
+const glob = require('glob');
+const wrench = require('wrench');
+const exec = require('./shell').exec;
+const argv = require('minimist')(process.argv.slice(2), {
   boolean: [
     'n', 'new',
     's', 'scan',
     'd', 'delete',
     'v', 'version',
-    'l', 'list'
-  ]
+    'l', 'list',
+  ],
 });
 
 /*
@@ -29,19 +29,19 @@ const PROJECTS_DIR_NAME = 'projects';
  * These are most popular files to exlude,
  * while creating or scanning new project.
  */
-var defaultExclude = [
+const defaultExclude = [
   'node_modules',
   '.git',
   'bower_components',
   'npm-debug.log',
-  CONFIG_FILE_NAME
+  CONFIG_FILE_NAME,
 ];
 
-var defaultScanExclude = [
+const defaultScanExclude = [
   'node_modules',
   '.git',
   'bower_components',
-  'npm-debug.log'
+  'npm-debug.log',
 ];
 
 /*
@@ -52,11 +52,23 @@ function _getConfigPath(project) {
 }
 
 /*
+ * Executes list of commands
+ */
+function execCmdList(list) {
+  if (list.length === 0) return;
+
+  const cmd = list.shift();
+  exec(cmd.cmd, cmd.args, () => {
+    execCmdList(list);
+  });
+}
+
+/*
  * Checks if project has config file added
  */
 function _hasConfigFile(pathname) {
   try {
-    var stats = fs.lstatSync(pathname);
+    const stats = fs.lstatSync(pathname);
     return stats.isFile();
   } catch (error) {
     console.error(error);
@@ -76,7 +88,7 @@ function _getProjectPath(name) {
  */
 function _projectExists(pathname) {
   try {
-    var stats = fs.lstatSync(pathname);
+    const stats = fs.lstatSync(pathname);
     return stats.isDirectory();
   } catch (error) {
     return false;
@@ -107,18 +119,18 @@ function _afterCreate(dest, commandsList) {
  * Supports wildcards
  */
 function _createExcludeFilter(projectName, toFilter) {
-  return function(filename, dir) {
-    var projectPath = _getProjectPath(projectName);
+  return (filename, dir) => {
+    const projectPath = _getProjectPath(projectName);
 
-    return toFilter.some(function(wildcardFilter) {
-      var files = glob.sync(wildcardFilter, {
+    return toFilter.some((wildcardFilter) => {
+      const files = glob.sync(wildcardFilter, {
         cwd: projectPath,
-        root: projectPath
+        root: projectPath,
       });
 
-      return files.some(function(filter) {
-        var filterPath = path.resolve(projectPath, filter);
-        var filePath = path.resolve(dir, filename);
+      return files.some((filter) => {
+        const filterPath = path.resolve(projectPath, filter);
+        const filePath = path.resolve(dir, filename);
 
         return filterPath === filePath;
       });
@@ -130,7 +142,7 @@ function _createExcludeFilter(projectName, toFilter) {
  * Returns scan files exclude filter
  */
 function _getScanExcludeFilter(projectName, config) {
-  var toFilter = config.scanExclude || defaultScanExclude;
+  const toFilter = config.scanExclude || defaultScanExclude;
   return _createExcludeFilter(projectName, toFilter);
 }
 
@@ -138,8 +150,8 @@ function _getScanExcludeFilter(projectName, config) {
  * Returns files exclude filter
  */
 function _getExcludeFilter(projectName, config) {
-  var toFilter = defaultExclude;
-  
+  let toFilter = defaultExclude;
+
   if (config.exclude) {
     toFilter = config.exclude;
     toFilter.push(CONFIG_FILE_NAME);
@@ -152,40 +164,28 @@ function _getExcludeFilter(projectName, config) {
  * Simple JSON file reader
  */
 function _readJSONFile(filePath) {
-  var pathname = path.resolve(__dirname, filePath);
+  const pathname = path.resolve(__dirname, filePath);
   return JSON.parse(fs.readFileSync(pathname));
-}
-
-/*
- * Executes list of commands
- */
-function execCmdList(list) {
-  if (list.length === 0) return;
-
-  var cmd = list.shift();
-  exec(cmd.cmd, cmd.args, function() {
-    execCmdList(list);
-  });
 }
 
 /*
  * Creates new project
  */
 function newProject(name, dest) {
-  var projectPath = _getProjectPath(name);
-  
+  const projectPath = _getProjectPath(name);
+
   if (!_projectExists(projectPath)) {
     console.error('Project doesn\'t exist!');
     process.exit(1);
   }
 
-  var configPath = _getConfigPath(name);
-  var config = _hasConfigFile(configPath) ?
+  const configPath = _getConfigPath(name);
+  const config = _hasConfigFile(configPath) ?
     _readJSONFile(configPath) :
     {};
-      
-  var excludeFilter = _getExcludeFilter(name, config);
-  var commands = _getCommandsList(config);
+
+  const excludeFilter = _getExcludeFilter(name, config);
+  const commands = _getCommandsList(config);
 
   try {
     wrench.copyDirSyncRecursive(
@@ -193,12 +193,12 @@ function newProject(name, dest) {
       dest,
       {
         whitelist: true,
-        exclude: excludeFilter
+        exclude: excludeFilter,
       }
     );
 
     _afterCreate(dest, commands);
-    console.log('Successfully created ' + name + ' project!');
+    console.log(`Successfully created ${name} project!`);
   } catch (error) {
     console.error(error);
     process.exit(1);
@@ -209,19 +209,19 @@ function newProject(name, dest) {
  * Scans project and saves it in `projects/` directory
  */
 function scanProject(name, src) {
-  var projectPath = _getProjectPath(name);
+  const projectPath = _getProjectPath(name);
 
   if (_projectExists(projectPath)) {
     console.log('Project already exists');
     process.exit(0);
   }
 
-  var configPath = path.join(process.cwd(), src, CONFIG_FILE_NAME);
-  var config = _hasConfigFile(configPath) ?
+  const configPath = path.join(process.cwd(), src, CONFIG_FILE_NAME);
+  const config = _hasConfigFile(configPath) ?
     _readJSONFile(configPath) :
     {};
-      
-  var excludeFilter = _getScanExcludeFilter(name, config);
+
+  const excludeFilter = _getScanExcludeFilter(name, config);
 
   try {
     mkdirp(path.join(__dirname, PROJECTS_DIR_NAME));
@@ -230,11 +230,11 @@ function scanProject(name, src) {
       projectPath,
       {
         whitelist: true,
-        exclude: excludeFilter
+        exclude: excludeFilter,
       }
-    );  
+    );
 
-    console.log('Successfully scanned ' + name + ' project!');
+    console.log(`Successfully scanned ${name} project!`);
   } catch (error) {
     console.error(error);
     process.exit(1);
@@ -245,15 +245,15 @@ function scanProject(name, src) {
  * Checks if project with given name exists, then it removes it
  */
 function removeProject(name) {
-  var projectPath = _getProjectPath(name);
+  const projectPath = _getProjectPath(name);
   if (!_projectExists(projectPath)) {
-    console.error(name + ' project doesn\'t exist!');
+    console.error(`${name} project doesn't exist!`);
     process.exit(1);
   }
 
   try {
     wrench.rmdirSyncRecursive(projectPath);
-    console.log('Successfully removed ' + name + ' project!');
+    console.log(`Successfully removed ${name} project!`);
   } catch (error) {
     console.error(error);
     process.exit(1);
@@ -277,7 +277,7 @@ function printHelp() {
  * Prints version info
  */
 function printVersion() {
-  var pkg = require('./package.json');
+  const pkg = require('./package.json');
   console.log(pkg.version);
 }
 
@@ -286,20 +286,20 @@ function printVersion() {
  */
 function printProjectsList() {
   try {
-    var projects = fs.readdirSync(path.join(__dirname, 'projects'));
+    const projects = fs.readdirSync(path.join(__dirname, 'projects'));
+
+    projects
+      .filter((project) => {
+        const pathname = _getProjectPath(project);
+        return fs.lstatSync(pathname).isDirectory();
+      })
+      .forEach((project) => {
+        console.log(`- ${project}`);
+      });
   } catch (e) {
     console.log('You haven\'t created any project');
     process.exit(0);
   }
-
-  projects
-    .filter(function(project) {
-      var pathname = _getProjectPath(project);
-      return fs.lstatSync(pathname).isDirectory();
-    })
-    .forEach(function(project) {
-      console.log('- ' + project);
-    });
 }
 
 /*
