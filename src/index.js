@@ -3,8 +3,22 @@ import fs from 'fs';
 import mkdirp from 'mkdirp';
 import glob from 'glob';
 import wrench from 'wrench';
-import { exec } from './shell';
 import minimist from 'minimist';
+import { exec } from './shell';
+import {
+  getProjectPath,
+  getConfigPath,
+  hasConfigFile,
+  projectExists,
+} from './project-utils';
+import {
+  CONFIG_FILE_NAME,
+  PROJECTS_DIR_NAME,
+  DEFAULT_EXCLUDE,
+  DEFAULT_SCAN_EXCLUDE,
+  SUCCESS_EXIT_CODE,
+  FAILURE_EXIT_CODE,
+} from './constants';
 
 /**
  * Process parameters passed via CLI
@@ -20,43 +34,6 @@ const argv = minimist(process.argv.slice(2), {
 });
 
 /*
- * Constants
- *
- * These are constants for things like file or dir names.
- * If there would ever be a need for a quick change.
- */
-const CONFIG_FILE_NAME = '.quickstartrc';
-const PROJECTS_DIR_NAME = 'projects';
-
-/*
- * Default exclude filter files
- *
- * These are most popular files to exlude,
- * while creating or scanning new project.
- */
-const defaultExclude = [
-  'node_modules',
-  '.git',
-  'bower_components',
-  'npm-debug.log',
-  CONFIG_FILE_NAME,
-];
-
-const defaultScanExclude = [
-  'node_modules',
-  '.git',
-  'bower_components',
-  'npm-debug.log',
-];
-
-/*
- * Returns config path based on project name
- */
-function _getConfigPath(project) {
-  return path.join(__dirname, PROJECTS_DIR_NAME, project, CONFIG_FILE_NAME);
-}
-
-/*
  * Executes list of commands
  */
 function execCmdList(list) {
@@ -66,38 +43,6 @@ function execCmdList(list) {
   exec(cmd.cmd, cmd.args, () => {
     execCmdList(list);
   });
-}
-
-/*
- * Checks if project has config file added
- */
-function _hasConfigFile(pathname) {
-  try {
-    const stats = fs.lstatSync(pathname);
-    return stats.isFile();
-  } catch (error) {
-    console.error(error);
-    process.exit(1);
-  }
-}
-
-/*
- * Gets project path based on its name
- */
-function _getProjectPath(name) {
-  return path.join(__dirname, PROJECTS_DIR_NAME, name);
-}
-
-/*
- * Checks if project with given name exists
- */
-function _projectExists(pathname) {
-  try {
-    const stats = fs.lstatSync(pathname);
-    return stats.isDirectory();
-  } catch (error) {
-    return false;
-  }
 }
 
 /*
@@ -125,7 +70,7 @@ function _afterCreate(dest, commandsList) {
  */
 function _createExcludeFilter(projectName, toFilter) {
   return (filename, dir) => {
-    const projectPath = _getProjectPath(projectName);
+    const projectPath = getProjectPath(projectName);
 
     return toFilter.some((wildcardFilter) => {
       const files = glob.sync(wildcardFilter, {
@@ -147,7 +92,7 @@ function _createExcludeFilter(projectName, toFilter) {
  * Returns scan files exclude filter
  */
 function _getScanExcludeFilter(projectName, config) {
-  const toFilter = config.scanExclude || defaultScanExclude;
+  const toFilter = config.scanExclude || DEFAULT_SCAN_EXCLUDE;
   return _createExcludeFilter(projectName, toFilter);
 }
 
@@ -155,7 +100,7 @@ function _getScanExcludeFilter(projectName, config) {
  * Returns files exclude filter
  */
 function _getExcludeFilter(projectName, config) {
-  let toFilter = defaultExclude;
+  let toFilter = DEFAULT_EXCLUDE;
 
   if (config.exclude) {
     toFilter = config.exclude;
@@ -177,15 +122,15 @@ function _readJSONFile(filePath) {
  * Creates new project
  */
 function newProject(name, dest) {
-  const projectPath = _getProjectPath(name);
+  const projectPath = getProjectPath(name);
 
-  if (!_projectExists(projectPath)) {
+  if (!projectExists(projectPath)) {
     console.error('Project doesn\'t exist!');
-    process.exit(1);
+    process.exit(FAILURE_EXIT_CODE);
   }
 
-  const configPath = _getConfigPath(name);
-  const config = _hasConfigFile(configPath) ?
+  const configPath = getConfigPath(name);
+  const config = hasConfigFile(configPath) ?
     _readJSONFile(configPath) :
     {};
 
@@ -206,7 +151,7 @@ function newProject(name, dest) {
     console.log(`Successfully created ${name} project!`);
   } catch (error) {
     console.error(error);
-    process.exit(1);
+    process.exit(FAILURE_EXIT_CODE);
   }
 }
 
@@ -214,15 +159,15 @@ function newProject(name, dest) {
  * Scans project and saves it in `projects/` directory
  */
 function scanProject(name, src) {
-  const projectPath = _getProjectPath(name);
+  const projectPath = getProjectPath(name);
 
-  if (_projectExists(projectPath)) {
+  if (projectExists(projectPath)) {
     console.log('Project already exists');
-    process.exit(0);
+    process.exit(SUCCESS_EXIT_CODE);
   }
 
   const configPath = path.join(process.cwd(), src, CONFIG_FILE_NAME);
-  const config = _hasConfigFile(configPath) ?
+  const config = hasConfigFile(configPath) ?
     _readJSONFile(configPath) :
     {};
 
@@ -242,7 +187,7 @@ function scanProject(name, src) {
     console.log(`Successfully scanned ${name} project!`);
   } catch (error) {
     console.error(error);
-    process.exit(1);
+    process.exit(FAILURE_EXIT_CODE);
   }
 }
 
@@ -250,10 +195,10 @@ function scanProject(name, src) {
  * Checks if project with given name exists, then it removes it
  */
 function removeProject(name) {
-  const projectPath = _getProjectPath(name);
-  if (!_projectExists(projectPath)) {
+  const projectPath = getProjectPath(name);
+  if (!projectExists(projectPath)) {
     console.error(`${name} project doesn't exist!`);
-    process.exit(1);
+    process.exit(FAILURE_EXIT_CODE);
   }
 
   try {
@@ -261,7 +206,7 @@ function removeProject(name) {
     console.log(`Successfully removed ${name} project!`);
   } catch (error) {
     console.error(error);
-    process.exit(1);
+    process.exit(FAILURE_EXIT_CODE);
   }
 }
 
@@ -295,7 +240,7 @@ function printProjectsList() {
 
     projects
       .filter((project) => {
-        const pathname = _getProjectPath(project);
+        const pathname = getProjectPath(project);
         return fs.lstatSync(pathname).isDirectory();
       })
       .forEach((project) => {
@@ -303,7 +248,7 @@ function printProjectsList() {
       });
   } catch (e) {
     console.log('You haven\'t created any project');
-    process.exit(0);
+    process.exit(SUCCESS_EXIT_CODE);
   }
 }
 
