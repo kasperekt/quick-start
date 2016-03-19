@@ -21,7 +21,8 @@
   "jest": {
     "automock": false,
     "scriptPreprocessor": "<rootDir>/node_modules/babel-jest",
-    "moduleFileExtensions": ["js", "json"]
+    "moduleFileExtensions": ["js", "json"],
+    "testPathIgnorePatterns": ["/node_modules/", "/__tests__\/env/"]
   },
   "scripts": {
     "compile": "babel -d lib/ src/",
