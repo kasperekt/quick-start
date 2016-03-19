@@ -6,8 +6,8 @@ var argv = require('minimist')(process.argv.slice(2), {
     's', 'scan',
     'd', 'delete',
     'v', 'version',
-    'l', 'list',
-  ],
+    'l', 'list'
+  ]
 });
 
 /*
