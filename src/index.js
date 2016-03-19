@@ -20,8 +20,8 @@ var argv = require('minimist')(process.argv.slice(2), {
  * These are constants for things like file or dir names.
  * If there would ever be a need for a quick change.
  */
-var CONFIG_FILE_NAME = '.quickstartrc';
-var PROJECTS_DIR_NAME = 'projects';
+const CONFIG_FILE_NAME = '.quickstartrc';
+const PROJECTS_DIR_NAME = 'projects';
 
 /*
  * Default exclude filter files
@@ -277,8 +277,8 @@ function printHelp() {
  * Prints version info
  */
 function printVersion() {
-  var package = require('./package.json');
-  console.log(package.version);
+  var pkg = require('./package.json');
+  console.log(pkg.version);
 }
 
 /*
