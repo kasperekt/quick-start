@@ -1,10 +1,15 @@
-const path = require('path');
-const fs = require('fs');
-const mkdirp = require('mkdirp');
-const glob = require('glob');
-const wrench = require('wrench');
-const exec = require('./shell').exec;
-const argv = require('minimist')(process.argv.slice(2), {
+import path from 'path';
+import fs from 'fs';
+import mkdirp from 'mkdirp';
+import glob from 'glob';
+import wrench from 'wrench';
+import { exec } from './shell';
+import minimist from 'minimist';
+
+/**
+ * Process parameters passed via CLI
+ */
+const argv = minimist(process.argv.slice(2), {
   boolean: [
     'n', 'new',
     's', 'scan',
