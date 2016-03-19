@@ -3,7 +3,7 @@ var fs = require('fs');
 var mkdirp = require('mkdirp');
 var glob = require('glob');
 var wrench = require('wrench');
-var exec = require('./lib/shell').exec;
+var exec = require('./shell').exec;
 var argv = require('minimist')(process.argv.slice(2), {
   boolean: [
     'n', 'new',
