@@ -1,6 +1,11 @@
 jest.mock('homedir');
 import path from 'path';
-import { getConfigPath, getProjectPath, hasConfigFile } from '../src/project-utils';
+import {
+  getConfigPath,
+  getProjectPath,
+  hasConfigFile,
+  projectExists,
+} from '../src/project-utils';
 import { CONFIG_FILE_NAME, PROJECTS_DIR_NAME } from '../src/constants';
 
 describe('Project utils tests', () => {
@@ -51,5 +56,20 @@ describe('Project utils tests', () => {
 
     expect(hasConfigFile(projectWithConfig)).toBe(true);
     expect(hasConfigFile(projectWithoutConfig)).toBe(false);
+  });
+
+  it('should check if project exists', () => {
+    const projectsPath = path.resolve(__dirname, 'env', 'projects');
+    const existingProject = path.resolve(
+      projectsPath,
+      'project-with-config'
+    );
+    const fakeProject = path.resolve(
+      projectsPath,
+      'fake-project'
+    );
+
+    expect(projectExists(existingProject)).toBe(true);
+    expect(projectExists(fakeProject)).toBe(false);
   });
 });

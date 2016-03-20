@@ -29,6 +29,7 @@ export function hasConfigFile(pathname) {
     const stats = fs.lstatSync(pathname);
     return stats.isFile();
   } catch (error) {
+    // Inconsistent with `projectExists` function
     console.error(error);
     process.exit(FAILURE_EXIT_CODE);
   }
