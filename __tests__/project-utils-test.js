@@ -48,7 +48,6 @@ describe('Project utils tests', () => {
       '.quickstartrc'
     );
 
-    console.log(`With: ${projectWithConfig}\nWithout: ${projectWithoutConfig}`);
     expect(hasConfigFile(projectWithConfig)).toBe(true);
     expect(hasConfigFile(projectWithoutConfig)).toBe(false);
   });
