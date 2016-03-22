@@ -4,7 +4,6 @@ import homedir from 'homedir';
 import {
   PROJECTS_DIR_NAME,
   CONFIG_FILE_NAME,
-  FAILURE_EXIT_CODE,
 } from './constants';
 
 /**
@@ -29,12 +28,8 @@ export function hasConfigFile(pathname) {
     const stats = fs.lstatSync(pathname);
     return stats.isFile();
   } catch (error) {
-    // Inconsistent with `projectExists` function
-    console.error(error);
-    process.exit(FAILURE_EXIT_CODE);
+    return false;
   }
-
-  return false;
 }
 
 /*
