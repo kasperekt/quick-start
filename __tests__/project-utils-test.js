@@ -8,12 +8,13 @@ import {
 } from '../src/project-utils';
 import { CONFIG_FILE_NAME, PROJECTS_DIR_NAME } from '../src/constants';
 
+const TEST_ENV_DIR = path.resolve(__dirname, '..', 'test_env');
+
 describe('Project utils tests', () => {
   it('should return proper project path', () => {
     const project = 'example-project';
     const projectPath = path.resolve(
-      __dirname,
-      'env',
+      TEST_ENV_DIR,
       '.quickstart',
       PROJECTS_DIR_NAME,
       project
@@ -25,8 +26,7 @@ describe('Project utils tests', () => {
   it('should return proper config path', () => {
     const project = 'example-project';
     const configPath = path.resolve(
-      __dirname,
-      'env',
+      TEST_ENV_DIR,
       '.quickstart',
       PROJECTS_DIR_NAME,
       project,
@@ -37,12 +37,7 @@ describe('Project utils tests', () => {
   });
 
   it('should check if project has config file', () => {
-    // Mock process exit to not crash on return false
-    process.exit = () => {};
-    // Silence console error
-    console.error = () => {};
-
-    const projectsPath = path.resolve(__dirname, 'env', 'projects');
+    const projectsPath = path.resolve(TEST_ENV_DIR, '.quickstart', 'projects');
     const projectWithConfig = path.resolve(
       projectsPath,
       'project-with-config',
@@ -54,12 +49,13 @@ describe('Project utils tests', () => {
       '.quickstartrc'
     );
 
+    console.log(`With: ${projectWithConfig}\nWithout: ${projectWithoutConfig}`);
     expect(hasConfigFile(projectWithConfig)).toBe(true);
     expect(hasConfigFile(projectWithoutConfig)).toBe(false);
   });
 
   it('should check if project exists', () => {
-    const projectsPath = path.resolve(__dirname, 'env', 'projects');
+    const projectsPath = path.resolve(TEST_ENV_DIR, '.quickstart', 'projects');
     const existingProject = path.resolve(
       projectsPath,
       'project-with-config'
