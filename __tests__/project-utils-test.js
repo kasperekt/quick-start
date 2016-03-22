@@ -7,8 +7,7 @@ import {
   projectExists,
 } from '../src/project-utils';
 import { CONFIG_FILE_NAME, PROJECTS_DIR_NAME } from '../src/constants';
-
-const TEST_ENV_DIR = path.resolve(__dirname, '..', 'test_env');
+import { TEST_ENV_DIR } from './test-constants';
 
 describe('Project utils tests', () => {
   it('should return proper project path', () => {
