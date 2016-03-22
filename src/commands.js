@@ -9,7 +9,10 @@ export function exec(cmd, args, cb) {
 }
 
 /*
- * Executes list of commands
+ * Executes list of commands one after one
+ * Command format:
+ *
+ * { cmd: "echo", args: ["test"] }
  */
 export function execCmdList(list) {
   if (list.length === 0) return;
