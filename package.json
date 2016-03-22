@@ -28,9 +28,9 @@
     "compile": "babel -d lib/ src/",
     "lint": "eslint src/",
     "prepublish": "npm run lint && npm run compile",
-    "pretest": "./scripts/pretest.sh",
-    "test": "jest",
-    "posttest": "./scripts/posttest.sh"
+    "test:pre": "./scripts/pretest.sh",
+    "test:post": "./scripts/posttest.sh",
+    "test": "npm run test:pre && jest || npm run test:post"
   },
   "repository": {
     "type": "git",
