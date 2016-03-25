@@ -10,6 +10,13 @@ export const FAILURE_EXIT_CODE = 1;
 export const CONFIG_FILE_NAME = '.quickstartrc';
 
 /**
+ * Module directory name
+ * This is where projects will be saved
+ * i.e. /home/user/.quickstart/projects
+ */
+export const MODULE_DIR_NAME = '.quickstart';
+
+/**
  * Projects directory name
  */
 export const PROJECTS_DIR_NAME = 'projects';

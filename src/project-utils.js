@@ -4,13 +4,14 @@ import homedir from 'homedir';
 import {
   PROJECTS_DIR_NAME,
   CONFIG_FILE_NAME,
+  MODULE_DIR_NAME,
 } from './constants';
 
 /**
  * Returns path where projects is stored
  */
 export function getProjectPath(name) {
-  return path.join(homedir(), PROJECTS_DIR_NAME, name);
+  return path.join(homedir(), MODULE_DIR_NAME, PROJECTS_DIR_NAME, name);
 }
 
 /**
