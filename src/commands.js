@@ -14,8 +14,10 @@ export function exec(cmd, args, cb) {
  *
  * { cmd: "echo", args: ["test"] }
  */
-export function execCmdList(list) {
-  if (list.length === 0) return;
+export function execCmdList(list = []) {
+  if (list.length === 0) {
+    return;
+  }
 
   const cmd = list.shift();
   exec(cmd.cmd, cmd.args, () => {

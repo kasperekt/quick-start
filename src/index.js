@@ -62,7 +62,7 @@ export function newProject(name, dest) {
     _afterCreate(dest, commands);
     console.log(`Successfully created ${name} project!`);
   } catch (error) {
-    console.error(error);
+    console.error('Creating new project error: ', error);
     process.exit(FAILURE_EXIT_CODE);
   }
 }
