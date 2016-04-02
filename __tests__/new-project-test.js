@@ -1,19 +1,9 @@
 jest.mock('homedir');
 
 import path from 'path';
-import fs from 'fs';
 import { TEST_ENV_DIR } from './test-constants';
 import { newProject } from '../src/index';
-
-function dirExists(dir) {
-  const stat = fs.statSync(dir);
-  return stat.isDirectory();
-}
-
-function fileExists(file) {
-  const stat = fs.statSync(file);
-  return stat.isFile();
-}
+import { dirExists, fileExists } from './test-utils';
 
 describe('Main functions test', () => {
   beforeEach(() => {
