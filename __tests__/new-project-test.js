@@ -9,6 +9,7 @@ describe('Main functions test', () => {
   beforeEach(() => {
     // Silence all console logs
     console.log = () => {};
+    console.error = () => {};
   });
 
   it('should create new project', () => {
@@ -40,5 +41,14 @@ describe('Main functions test', () => {
       'exclude-me.txt',
       'src/c.js'
     )).toBe(true);
+  });
+
+  it('should exit process when there is no such project', () => {
+    const processExit = process.exit;
+    process.exit = jest.fn();
+    const destination = path.resolve(TEST_ENV_DIR, 'doesnt-matter');
+    newProject('project-doesnt-exist', destination);
+    expect(process.exit).toBeCalled();
+    process.exit = processExit;
   });
 });
