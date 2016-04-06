@@ -49,3 +49,9 @@ Example config file:
 * `-s, --scan` - scans given directory and saves it as a project
 * `-l, --list` - show the list of your projects
 * `-d, --delete` - deletes project
+
+## Testing
+
+There is `__test-env__/` directory which serves as testing environment file system. You can think of it like it is `$HOME`.
+Before each `npm test` I copy whole directory into `test_env/` in order to keep same testing structure every time I run tests.
+After testing, `test_env/` is removed.
