@@ -5,4 +5,4 @@ npm-debug.log
 lib
 .vscode
 test_env/
-!__test-env__/
+!__test-env__/**
