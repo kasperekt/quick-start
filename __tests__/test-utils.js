@@ -6,6 +6,10 @@ export function dirExists(dir) {
 }
 
 export function fileExists(file) {
-  const stat = fs.statSync(file);
-  return stat.isFile();
+  try {
+    const stat = fs.statSync(file);
+    return stat.isFile();
+  } catch (error) {
+    return false;
+  }
 }

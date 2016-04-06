@@ -25,4 +25,14 @@ describe('Main functions test', () => {
     const filePath = path.resolve(destination, 'index.html');
     expect(fileExists(filePath)).toBe(true);
   });
+
+  it('should emit excluded files', () => {
+    const destination = path.resolve(TEST_ENV_DIR, 'excludeFileTest');
+    newProject('project-with-ignore', destination);
+
+    const existingFilePath = path.resolve(destination, 'index.html');
+    const nonExistantFilePath = path.resolve(destination, 'exclude-me.txt');
+    expect(fileExists(existingFilePath)).toBe(true);
+    expect(fileExists(nonExistantFilePath)).toBe(false);
+  });
 });
