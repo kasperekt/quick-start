@@ -1,3 +1,3 @@
 {
-  "exclude": ["exclude-me.txt"]
+  "exclude": ["exclude-me.txt", "**/*.js"]
 }

@@ -3,7 +3,7 @@ jest.mock('homedir');
 import path from 'path';
 import { TEST_ENV_DIR } from './test-constants';
 import { newProject } from '../src/index';
-import { dirExists, fileExists } from './test-utils';
+import { dirExists, fileExists, filesDontExist } from './test-utils';
 
 describe('Main functions test', () => {
   beforeEach(() => {
@@ -31,8 +31,14 @@ describe('Main functions test', () => {
     newProject('project-with-ignore', destination);
 
     const existingFilePath = path.resolve(destination, 'index.html');
-    const nonExistantFilePath = path.resolve(destination, 'exclude-me.txt');
     expect(fileExists(existingFilePath)).toBe(true);
-    expect(fileExists(nonExistantFilePath)).toBe(false);
+
+    expect(filesDontExist(
+      destination,
+      'a.js',
+      'b.js',
+      'exclude-me.txt',
+      'src/c.js'
+    )).toBe(true);
   });
 });
