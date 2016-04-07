@@ -2,7 +2,8 @@
   "extends": "airbnb/base",
   "env": {
     "node": true,
-    "jest": true
+    "jest": true,
+    "jasmine": true
   },
   "rules": {
     "no-console": 0
