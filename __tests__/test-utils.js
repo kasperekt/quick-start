@@ -2,8 +2,12 @@ import fs from 'fs';
 import path from 'path';
 
 export function dirExists(dir) {
-  const stat = fs.statSync(dir);
-  return stat.isDirectory();
+  try {
+    const stat = fs.statSync(dir);
+    return stat.isDirectory();
+  } catch (error) {
+    return false;
+  }
 }
 
 export function fileExists(file) {
