@@ -5,11 +5,22 @@ import { TEST_ENV_DIR } from './test-constants';
 import { newProject } from '../src/index';
 import { dirExists, fileExists, filesDontExist } from './test-utils';
 
-describe('Main functions test', () => {
-  beforeEach(() => {
-    // Silence all console logs
+describe('New project creation test', () => {
+  let consoleLog;
+  let consoleError;
+
+  beforeAll(() => {
+    // Silence console methods
+    consoleLog = console.log;
     console.log = () => {};
+    consoleError = console.error;
     console.error = () => {};
+  });
+
+  afterAll(() => {
+    // Recover console methods
+    console.log = consoleLog;
+    console.error = consoleError;
   });
 
   it('should create new project', () => {
