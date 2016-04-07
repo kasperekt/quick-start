@@ -84,7 +84,6 @@ export function scanProject(name, src) {
     {};
 
   const excludeFilter = getScanExcludeFilter(name, config);
-
   try {
     mkdirp(path.join(__dirname, PROJECTS_DIR_NAME));
     wrench.copyDirSyncRecursive(
