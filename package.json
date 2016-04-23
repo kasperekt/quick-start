@@ -33,7 +33,7 @@
     "lint": "eslint src/",
     "prepublish": "npm run lint && npm run compile",
     "pretest": "./scripts/pretest.sh",
-    "test": "jest || npm run posttest",
+    "test": "jest",
     "posttest": "./scripts/posttest.sh",
     "postinstall": "./scripts/postinstall.sh"
   },
