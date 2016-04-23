@@ -1,6 +1,5 @@
 import path from 'path';
 import fs from 'fs';
-import mkdirp from 'mkdirp';
 import wrench from 'wrench';
 import { execCmdList, getCommandsList } from './commands';
 import { getExcludeFilter, getScanExcludeFilter } from './filters';
@@ -12,7 +11,6 @@ import {
 } from './project-utils';
 import {
   CONFIG_FILE_NAME,
-  PROJECTS_DIR_NAME,
   SUCCESS_EXIT_CODE,
   FAILURE_EXIT_CODE,
 } from './constants';
@@ -62,7 +60,7 @@ export function newProject(name, dest) {
     _afterCreate(dest, commands);
     console.log(`Successfully created ${name} project!`);
   } catch (error) {
-    console.error('Creating new project error: ', error);
+    console.error('Creating new project error', error);
     process.exit(FAILURE_EXIT_CODE);
   }
 }
@@ -85,15 +83,15 @@ export function scanProject(name, src) {
 
   const excludeFilter = getScanExcludeFilter(name, config);
   try {
-    mkdirp(path.join(__dirname, PROJECTS_DIR_NAME));
     wrench.copyDirSyncRecursive(
-      src,
+      path.join(process.cwd(), src),
       projectPath,
       { whitelist: true, exclude: excludeFilter }
     );
 
     console.log(`Successfully scanned ${name} project!`);
   } catch (error) {
+    console.error('Scanning project error', error);
     process.exit(FAILURE_EXIT_CODE);
   }
 }
@@ -143,9 +141,7 @@ export function printVersion() {
  */
 export function printProjectsList() {
   try {
-    const projects = fs.readdirSync(path.join(__dirname, 'projects'));
-
-    projects
+    fs.readdirSync(getProjectPath(''))
       .filter((project) => {
         const pathname = getProjectPath(project);
         return fs.lstatSync(pathname).isDirectory();
