@@ -1,4 +1,4 @@
-# quick-start
+# quick-start ![Travis](https://travis-ci.org/kasperekt/quick-start.svg?branch=master)
 
 It is simple scaffolding tool for node.js. When you have your own project structure, just add `.quickstartrc` config file, scan it, and you're ready to go.
 
