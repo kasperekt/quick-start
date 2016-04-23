@@ -110,7 +110,7 @@ export function removeProject(name) {
     wrench.rmdirSyncRecursive(projectPath);
     console.log(`Successfully removed ${name} project!`);
   } catch (error) {
-    console.error(error);
+    console.error('Removing project error', error);
     process.exit(FAILURE_EXIT_CODE);
   }
 }

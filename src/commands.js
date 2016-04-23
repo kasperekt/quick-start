@@ -1,7 +1,15 @@
+function printAction(cmd, args) {
+  console.log(`-- Running ${cmd} ${args.join(' ')}`);
+}
+
 export function exec(cmd, args, cb) {
   const spawn = require('child_process').spawn;
   const child = spawn(cmd, args, {
     stdio: [process.stdin, 'pipe', process.stderr],
+  });
+
+  process.nextTick(() => {
+    printAction(cmd, args);
   });
 
   child.stdout.pipe(process.stdout);
