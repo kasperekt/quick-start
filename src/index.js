@@ -84,7 +84,7 @@ export function scanProject(name, src) {
   const excludeFilter = getScanExcludeFilter(name, config);
   try {
     wrench.copyDirSyncRecursive(
-      path.join(process.cwd(), src),
+      src,
       projectPath,
       { whitelist: true, exclude: excludeFilter }
     );
