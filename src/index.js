@@ -134,7 +134,7 @@ export function printHelp() {
  * Prints version info
  */
 export function printVersion() {
-  const pkg = require('./package.json');
+  const pkg = _readJSONFile('../package.json');
   console.log(pkg.version);
 }
 
