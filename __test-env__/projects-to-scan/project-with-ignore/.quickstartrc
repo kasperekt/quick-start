@@ -1,0 +1,3 @@
+{
+  "scanExclude": ["node_modules/"]
+}

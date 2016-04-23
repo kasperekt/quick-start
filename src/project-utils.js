@@ -4,14 +4,14 @@ import homedir from 'homedir';
 import {
   PROJECTS_DIR_NAME,
   CONFIG_FILE_NAME,
-  FAILURE_EXIT_CODE,
+  MODULE_DIR_NAME,
 } from './constants';
 
 /**
  * Returns path where projects is stored
  */
 export function getProjectPath(name) {
-  return path.join(homedir(), PROJECTS_DIR_NAME, name);
+  return path.join(homedir(), MODULE_DIR_NAME, PROJECTS_DIR_NAME, name);
 }
 
 /**
@@ -29,11 +29,8 @@ export function hasConfigFile(pathname) {
     const stats = fs.lstatSync(pathname);
     return stats.isFile();
   } catch (error) {
-    console.error(error);
-    process.exit(FAILURE_EXIT_CODE);
+    return false;
   }
-
-  return false;
 }
 
 /*

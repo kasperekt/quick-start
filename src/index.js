@@ -1,9 +1,8 @@
 import path from 'path';
 import fs from 'fs';
-import mkdirp from 'mkdirp';
-import glob from 'glob';
 import wrench from 'wrench';
-import { exec } from './shell';
+import { execCmdList, getCommandsList } from './commands';
+import { getExcludeFilter, getScanExcludeFilter } from './filters';
 import {
   getProjectPath,
   getConfigPath,
@@ -12,33 +11,9 @@ import {
 } from './project-utils';
 import {
   CONFIG_FILE_NAME,
-  PROJECTS_DIR_NAME,
-  DEFAULT_EXCLUDE,
-  DEFAULT_SCAN_EXCLUDE,
   SUCCESS_EXIT_CODE,
   FAILURE_EXIT_CODE,
 } from './constants';
-
-/*
- * Executes list of commands
- */
-function execCmdList(list) {
-  if (list.length === 0) return;
-
-  const cmd = list.shift();
-  exec(cmd.cmd, cmd.args, () => {
-    execCmdList(list);
-  });
-}
-
-/*
- * Returns commands list if have one
- */
-function _getCommandsList(config) {
-  if (config.commands) {
-    return config.commands;
-  }
-}
 
 /*
  * Executes "after install" commands after creating project
@@ -46,54 +21,6 @@ function _getCommandsList(config) {
 function _afterCreate(dest, commandsList) {
   process.chdir(path.resolve(process.cwd(), dest));
   execCmdList(commandsList);
-}
-
-/*
- * Returns function which serves as filter.
- * Pass array of filenames to exclude them.
- *
- * Supports wildcards
- */
-function _createExcludeFilter(projectName, toFilter) {
-  return (filename, dir) => {
-    const projectPath = getProjectPath(projectName);
-
-    return toFilter.some((wildcardFilter) => {
-      const files = glob.sync(wildcardFilter, {
-        cwd: projectPath,
-        root: projectPath,
-      });
-
-      return files.some((filter) => {
-        const filterPath = path.resolve(projectPath, filter);
-        const filePath = path.resolve(dir, filename);
-
-        return filterPath === filePath;
-      });
-    });
-  };
-}
-
-/*
- * Returns scan files exclude filter
- */
-function _getScanExcludeFilter(projectName, config) {
-  const toFilter = config.scanExclude || DEFAULT_SCAN_EXCLUDE;
-  return _createExcludeFilter(projectName, toFilter);
-}
-
-/*
- * Returns files exclude filter
- */
-function _getExcludeFilter(projectName, config) {
-  let toFilter = DEFAULT_EXCLUDE;
-
-  if (config.exclude) {
-    toFilter = config.exclude;
-    toFilter.push(CONFIG_FILE_NAME);
-  }
-
-  return _createExcludeFilter(projectName, toFilter);
 }
 
 /*
@@ -120,23 +47,20 @@ export function newProject(name, dest) {
     _readJSONFile(configPath) :
     {};
 
-  const excludeFilter = _getExcludeFilter(name, config);
-  const commands = _getCommandsList(config);
+  const excludeFilter = getExcludeFilter(name, config);
+  const commands = getCommandsList(config);
 
   try {
     wrench.copyDirSyncRecursive(
       projectPath,
       dest,
-      {
-        whitelist: true,
-        exclude: excludeFilter,
-      }
+      { whitelist: true, exclude: excludeFilter }
     );
 
     _afterCreate(dest, commands);
     console.log(`Successfully created ${name} project!`);
   } catch (error) {
-    console.error(error);
+    console.error('Creating new project error', error);
     process.exit(FAILURE_EXIT_CODE);
   }
 }
@@ -157,22 +81,17 @@ export function scanProject(name, src) {
     _readJSONFile(configPath) :
     {};
 
-  const excludeFilter = _getScanExcludeFilter(name, config);
-
+  const excludeFilter = getScanExcludeFilter(name, config);
   try {
-    mkdirp(path.join(__dirname, PROJECTS_DIR_NAME));
     wrench.copyDirSyncRecursive(
-      src,
+      path.join(process.cwd(), src),
       projectPath,
-      {
-        whitelist: true,
-        exclude: excludeFilter,
-      }
+      { whitelist: true, exclude: excludeFilter }
     );
 
     console.log(`Successfully scanned ${name} project!`);
   } catch (error) {
-    console.error(error);
+    console.error('Scanning project error', error);
     process.exit(FAILURE_EXIT_CODE);
   }
 }
@@ -191,7 +110,7 @@ export function removeProject(name) {
     wrench.rmdirSyncRecursive(projectPath);
     console.log(`Successfully removed ${name} project!`);
   } catch (error) {
-    console.error(error);
+    console.error('Removing project error', error);
     process.exit(FAILURE_EXIT_CODE);
   }
 }
@@ -213,7 +132,7 @@ export function printHelp() {
  * Prints version info
  */
 export function printVersion() {
-  const pkg = require('./package.json');
+  const pkg = _readJSONFile('../package.json');
   console.log(pkg.version);
 }
 
@@ -222,9 +141,7 @@ export function printVersion() {
  */
 export function printProjectsList() {
   try {
-    const projects = fs.readdirSync(path.join(__dirname, 'projects'));
-
-    projects
+    fs.readdirSync(getProjectPath(''))
       .filter((project) => {
         const pathname = getProjectPath(project);
         return fs.lstatSync(pathname).isDirectory();

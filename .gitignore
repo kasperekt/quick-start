@@ -4,3 +4,5 @@ projects/
 npm-debug.log
 lib
 .vscode
+test_env/
+!__test-env__/**
