@@ -119,13 +119,9 @@ export function removeProject(name) {
  * Print help message in command line
  */
 export function printHelp() {
-  console.log(
-    'Usage: quick-start [-n | -s] [project_name] [destination]\n',
-    '   -n, --new         new project\n',
-    '   -s, --scan        scan project\n',
-    '   -l, --list        show the list of your projects\n',
-    '   -d, --delete      delete project\n\n'
-  );
+  const helpPath = path.resolve(__dirname, '../help.txt');
+  const help = fs.readFileSync(helpPath);
+  process.stdout.write(help);
 }
 
 /*
