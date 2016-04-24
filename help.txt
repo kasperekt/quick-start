@@ -1,0 +1,13 @@
+Usage: quick-start [-n | -s | -d] [project_name] [directory]
+
+  -n, --new      new project
+  example: quick-start --new project_name ./my_new_project
+
+  -s, --scan     scan project
+  example: quick-start --scan project_name ./my_new_project
+
+  -d, --delete   delete project
+  example: quick-start --delete project_name
+
+  -l, --list     show the list of your projects
+
